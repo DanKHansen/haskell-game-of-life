@@ -1,22 +1,15 @@
 module GameOfLife (tick) where
 
 tick :: [[Int]] -> [[Int]]
-tick board =
-  [ [ applyRules c (countLiveNeighbors i j)
-      | (j, c) <- zip [0 ..] row
-    ]
-    | (i, row) <- zip [0 ..] board
-  ]
+tick board = [[applyRules c (liveAdj i j) | (j, c) <- zip [0 ..] row] | (i, row) <- zip [0 ..] board]
   where
     rows = length board
     cols = if null board then 0 else length (head board)
 
-    countLiveNeighbors :: Int -> Int -> Int
-    countLiveNeighbors i j =
-      length $
-        filter (== 1) [board !! x !! y | (x, y) <- validNeighbors i j]
+    liveAdj :: Int -> Int -> Int
+    liveAdj i j = length $ filter (== 1) [board !! x !! y | (x, y) <- validAdj i j]
       where
-        validNeighbors a b =
+        validAdj a b =
           [ (x, y)
             | dx <- [-1, 0, 1],
               let x = a + dx,
@@ -27,6 +20,6 @@ tick board =
 
     applyRules :: Int -> Int -> Int
     applyRules c n
-      | c == 1 = if n == 2 || n == 3 then 1 else 0 -- Survival rule
-      | c == 0 = if n == 3 then 1 else 0 -- Birth rule
-      | otherwise = 0 -- Death rule
+      | c == 1 = if n == 2 || n == 3 then 1 else 0
+      | c == 0 = if n == 3 then 1 else 0
+      | otherwise = 0
